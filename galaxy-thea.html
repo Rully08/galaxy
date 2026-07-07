@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Untuk Thea — Galaksi Kenangan Kita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root{
+    --bg-deep:#05030f;
+    --gold:#ffd98a;
+    --pink:#ff8fc7;
+    --red:#ff3b1f;
+    --text-light:#f4eefc;
+    --text-dim:#b9aed6;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--bg-deep);
+    overflow:hidden;
+    font-family:'Quicksand',sans-serif;
+    color:var(--text-light);
+  }
+  #galaxyCanvas{
+    position:fixed; inset:0; display:block; touch-action:none; cursor:grab;
+  }
+  #galaxyCanvas.dragging{ cursor:grabbing; }
+
+  #intro{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    background:radial-gradient(ellipse at center, rgba(40,10,20,0.35) 0%, rgba(5,3,15,0.92) 70%);
+    z-index:20; padding:24px;
+    transition:opacity 1.1s ease, visibility 1.1s ease;
+  }
+  #intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  #intro .eyebrow{ letter-spacing:0.35em; text-transform:uppercase; font-size:12px; color:var(--pink); margin-bottom:18px; opacity:0.9; }
+  #intro h1{
+    font-family:'Playfair Display', serif; font-weight:600; font-style:italic;
+    font-size:clamp(32px, 6vw, 64px); margin:0 0 18px 0;
+    background:linear-gradient(180deg,#ffffff 0%, var(--gold) 55%, var(--red) 110%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 40px rgba(255,80,50,0.25);
+  }
+  #intro p{ max-width:480px; font-size:15.5px; line-height:1.7; color:var(--text-dim); margin:0 0 34px 0; }
+  #startBtn{
+    font-family:'Quicksand',sans-serif; font-weight:600; font-size:15px; letter-spacing:0.04em;
+    background:linear-gradient(135deg,var(--pink),var(--gold)); color:#2a0f2f; border:none;
+    border-radius:999px; padding:15px 38px; cursor:pointer;
+    box-shadow:0 0 30px rgba(255,143,199,0.45);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  #startBtn:hover{ transform:translateY(-2px) scale(1.03); box-shadow:0 0 40px rgba(255,143,199,0.65); }
+  #startBtn:active{ transform:translateY(0) scale(0.98); }
+  #startBtn:disabled{ opacity:0.6; cursor:default; transform:none; }
+
+  #hint{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    font-size:12.5px; color:var(--text-dim); letter-spacing:0.02em;
+    background:rgba(15,8,30,0.5); backdrop-filter:blur(6px);
+    padding:9px 18px; border-radius:999px; border:1px solid rgba(255,255,255,0.08);
+    opacity:0; transition:opacity 1s ease; z-index:10; pointer-events:none; text-align:center; max-width:90%;
+  }
+  #hint.show{ opacity:1; }
+
+  #label{
+    position:fixed; top:22px; left:50%; transform:translateX(-50%);
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500; font-size:15px;
+    color:var(--text-dim); opacity:0; transition:opacity 1s ease 0.3s; z-index:10;
+    letter-spacing:0.03em; text-align:center;
+  }
+  #label.show{ opacity:0.85; }
+  #label b{ color:var(--pink); font-weight:600; }
+
+  #modalOverlay{
+    position:fixed; inset:0; z-index:30; background:rgba(3,2,10,0.75); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; transition:opacity 0.3s ease, visibility 0.3s ease; padding:20px;
+  }
+  #modalOverlay.open{ opacity:1; visibility:visible; }
+  #modalCard{
+    width:100%; max-width:420px;
+    background:linear-gradient(160deg, #1b0e2f 0%, #120a28 100%);
+    border:1px solid rgba(255,255,255,0.09); border-radius:22px; padding:30px 28px 26px 28px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 50px rgba(255,80,50,0.08);
+    transform:translateY(16px) scale(0.97); transition:transform 0.3s ease; position:relative;
+  }
+  #modalOverlay.open #modalCard{ transform:translateY(0) scale(1); }
+  #modalClose{
+    position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04); color:var(--text-dim);
+    font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s, color 0.2s;
+  }
+  #modalClose:hover{ background:rgba(255,143,199,0.18); color:var(--text-light); }
+  #modalOrder{ font-size:11px; letter-spacing:0.25em; text-transform:uppercase; color:var(--pink); margin-bottom:14px; }
+  #modalMedia{
+    width:100%; aspect-ratio:4/3; border-radius:14px;
+    background:radial-gradient(ellipse at 30% 20%, rgba(255,120,80,0.18), transparent 60%), #1a1030;
+    border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center;
+    font-size:56px; margin-bottom:20px; overflow:hidden;
+  }
+  #modalMedia img{ width:100%; height:100%; object-fit:cover; display:block; }
+  #modalTitle{ font-family:'Playfair Display', serif; font-weight:600; font-size:22px; margin:0 0 10px 0; color:var(--text-light); }
+  #modalDesc{ font-size:14.5px; line-height:1.75; color:var(--text-dim); margin:0; }
+
+  @media (max-width:480px){
+    #hint{ font-size:11px; padding:8px 14px; }
+    #label{ font-size:13px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="galaxyCanvas"></canvas>
+
+<div id="label">Sebuah galaksi berisi kenangan <b>kita</b></div>
+<div id="hint">Seret ke segala arah untuk melihat sekeliling &nbsp;•&nbsp; Scroll / cubit untuk zoom &nbsp;•&nbsp; Ketuk foto untuk membuka kenangan</div>
+
+<div id="intro">
+  <div class="eyebrow">Selamat Ulang Tahun</div>
+  <h1>Untuk Thea</h1>
+  <p>Aku kumpulkan setiap kenangan kita jadi bintang, lalu kususun jadi galaksi sendiri —
+     semakin jauh dari pusat, semakin baru ceritanya. Selamat menjelajah, sayang. 🌌</p>
+  <button id="startBtn">Mulai Perjalanan</button>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalCard">
+    <button id="modalClose" aria-label="Tutup">✕</button>
+    <div id="modalOrder"></div>
+    <div id="modalMedia"></div>
+    <h3 id="modalTitle"></h3>
+    <p id="modalDesc"></p>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   GALAKSI KENANGAN
+===================================================================== */
+const memories = [
+  {title:"Awal Kita Kenal",        desc:"Tulis di sini cerita tentang awal kalian saling kenal...", icon:"✨", photo:null},
+  {title:"Chat Pertama",           desc:"Ceritakan momen chat pertama kalian di sini...", icon:"💬", photo:null},
+  {title:"Video Call Pertama",     desc:"Tulis kenangan tentang video call pertama kalian...", icon:"📱", photo:null},
+  {title:"Ketemu Langsung",        desc:"Cerita saat pertama kali bertemu langsung...", icon:"🤝", photo:null},
+  {title:"Kencan Pertama",         desc:"Momen kencan pertama yang tak terlupakan...", icon:"🌙", photo:null},
+  {title:"Jadian",                 desc:"Hari spesial saat kalian resmi jadi sepasang kekasih...", icon:"💌", photo:null},
+  {title:"Jalan Sore Bareng",      desc:"Cerita tentang jalan sore santai berdua...", icon:"🌇", photo:null},
+  {title:"Nonton Bareng",          desc:"Film atau series favorit yang ditonton bersama...", icon:"🎬", photo:null},
+  {title:"Makan Malam Spesial",    desc:"Momen makan malam berdua yang berkesan...", icon:"🍽️", photo:null},
+  {title:"Hujan-hujanan",          desc:"Kenangan lucu atau manis saat hujan bareng...", icon:"🌧️", photo:null},
+  {title:"Momen Konyol",           desc:"Cerita momen paling konyol/lucu berdua...", icon:"😂", photo:null},
+  {title:"Saling Menguatkan",      desc:"Saat kalian saling menguatkan di hari yang berat...", icon:"🫂", photo:null},
+  {title:"Liburan Pertama",        desc:"Cerita liburan pertama kalian bersama...", icon:"🧳", photo:null},
+  {title:"Piknik Kecil",           desc:"Kenangan piknik atau ngopi santai berdua...", icon:"🧺", photo:null},
+  {title:"Masak Bareng",           desc:"Momen masak atau bikin sesuatu bareng...", icon:"🍳", photo:null},
+  {title:"Kejutan Kecil",          desc:"Cerita tentang kejutan manis tak terduga...", icon:"🎁", photo:null},
+  {title:"Bercanda Gurau",         desc:"Momen kita tertawa sampai perut sakit...", icon:"😆", photo:null},
+  {title:"Jalan Malam",            desc:"Keliling kota di malam hari menikmati udara dingin...", icon:"🌃", photo:null},
+  {title:"Cerita Hujan",           desc:"Berteduh sambil ngobrol panjang lebar...", icon:"☔", photo:null},
+  {title:"Playlist Berdua",        desc:"Lagu-lagu yang selalu mengingatkan kita satu sama lain...", icon:"🎶", photo:null},
+  {title:"Ngopi Bareng",           desc:"Cerita di balik segelas kopi kesukaan...", icon:"☕", photo:null},
+  {title:"VC Semalaman",           desc:"Ketiduran saat sedang video call...", icon:"😴", photo:null},
+  {title:"Makan Es Krim",          desc:"Momen manis berbagi es krim favorit...", icon:"🍦", photo:null},
+  {title:"Cerita Horor Bareng",    desc:"Saling takut tapi tetap mau dengerin ceritanya...", icon:"👻", photo:null},
+  {title:"Nonton Konser",          desc:"Menyanyikan lagu favorit bersama penyanyinya...", icon:"🎤", photo:null},
+  {title:"Bikin Kue Bareng",       desc:"Beres-beres dapur setelah berantakan bikin kue...", icon:"🧁", photo:null},
+  {title:"Olahraga Pagi",          desc:"Mencoba gaya hidup sehat berdua...", icon:"🏃", photo:null},
+  {title:"Belanja Bareng",         desc:"Milih-milih barang lucu yang nggak penting...", icon:"🛍️", photo:null},
+  {title:"Momen Canggung",         desc:"Hal memalukan tapi lucu kalau diingat lagi...", icon:"😳", photo:null},
+  {title:"Curhat Malam",           desc:"Saling berbagi keluh kesah hari itu...", icon:"💭", photo:null},
+  {title:"Main Game Bareng",       desc:"Bersaing siapa yang paling jago...", icon:"🎮", photo:null},
+  {title:"Selfie Berdua",          desc:"Foto dengan gaya yang aneh-aneh...", icon:"🤳", photo:null},
+  {title:"Marahan Bentar",         desc:"Momen ngambek lucu yang ujung-ujungnya baikan...", icon:"😤", photo:null},
+  {title:"Maafan Lagi",            desc:"Pelukan hangat setelah perdebatan kecil...", icon:"🤗", photo:null},
+  {title:"Janji Kita",             desc:"Komitmen yang kita buat untuk masa depan...", icon:"🤞", photo:null},
+  {title:"Mimpi Bersama",          desc:"Membicarakan rumah impian dan liburan selanjutnya...", icon:"💭", photo:null},
+  {title:"Masa Depan",             desc:"Melihat hari tua bersamamu...", icon:"👵", photo:null},
+  {title:"Ulang Tahun Thea Lalu",  desc:"Kenangan ulang tahun Thea di tahun sebelumnya...", icon:"🎂", photo:null},
+  {title:"Ketemu Keluarga",        desc:"Momen saat diperkenalkan ke keluarga...", icon:"🏠", photo:null},
+  {title:"Perjalanan Jauh",        desc:"Kenangan perjalanan jauh yang paling berkesan...", icon:"🚗", photo:null},
+  {title:"Melihat Bintang",        desc:"Momen melihat langit malam / bintang berdua...", icon:"🌠", photo:null},
+  {title:"Saat Rindu Terobati",    desc:"Cerita saat akhirnya bisa bertemu setelah lama rindu...", icon:"💗", photo:null},
+  {title:"Foto Favorit Kita",      desc:"Cerita di balik foto favorit kalian berdua...", icon:"📷", photo:null},
+  {title:"Saling Percaya",         desc:"Fondasi kuat dari hubungan kita...", icon:"🤝", photo:null},
+  {title:"Tumbuh Bersama",         desc:"Melihat kita menjadi versi yang lebih baik...", icon:"🌱", photo:null},
+  {title:"Momen Bahagia Ini",      desc:"Sesuatu yang membuat kalian sangat bahagia belakangan ini...", icon:"🌸", photo:null},
+  {title:"Menuju Hari Ini",        desc:"Perjalanan kalian sampai ke hari ulang tahun Thea ini...", icon:"🎉", photo:null},
+  {title:"Galaksi Kita",           desc:"Kumpulan semua kenangan yang membentuk dunia kita...", icon:"🌌", photo:null}
+];
+
+/* =====================================================================
+   RESPONSIVE HELPERS
+===================================================================== */
+let isMobile = window.innerWidth < 700;
+const R = 400; // world-space galaxy disk radius
+
+/* =====================================================================
+   THREE.JS SETUP
+===================================================================== */
+const canvas = document.getElementById('galaxyCanvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05030f);
+
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, 0.1, 6000);
+
+function resizeRenderer(){
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w,h);
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+  isMobile = w < 700;
+  recomputeFitDistance();
+}
+
+/* =====================================================================
+   BACKGROUND STARFIELD (Diperbanyak & Diperbesar)
+===================================================================== */
+function makeStarfield(){
+  const count = 3500; // Jumlah titik di luar galaksi dilipatgandakan
+  const positions = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r = 1600 + Math.random()*1900;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    positions[i*3]   = r*Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1] = r*Math.cos(phi);
+    positions[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  // Ukuran partikel (size) diperbesar dari 2.4 menjadi 4.0 agar lebih terlihat
+  const mat = new THREE.PointsMaterial({ color:0xcfd0ff, size:4.0, sizeAttenuation:true, transparent:true, opacity:0.85 });
+  return new THREE.Points(geo, mat);
+}
+scene.add(makeStarfield());
+
+/* =====================================================================
+   TEXTURE HELPERS
+===================================================================== */
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y);
+  g.arcTo(x+w,y,x+w,y+h,r);
+  g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);
+  g.arcTo(x,y,x+w,y,r);
+  g.closePath();
+}
+function makeDustTexture(){
+  const c = document.createElement('canvas'); c.width=32; c.height=32;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(255,255,255,0.92)';
+  roundRect(g,3,3,26,26,6); g.fill();
+  return new THREE.CanvasTexture(c);
+}
+function makeCardTexture(icon){
+  const c = document.createElement('canvas'); c.width=160; c.height=160;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(255,143,199,0.55)';
+  roundRect(g,4,4,152,152,26); g.fill();
+  g.fillStyle = '#fdf9ff';
+  roundRect(g,12,12,136,136,20); g.fill();
+  g.font = '64px sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(icon, 80, 86);
+  return new THREE.CanvasTexture(c);
+}
+function makeRadialGlow(color, inner){
+  const c = document.createElement('canvas'); c.width=256; c.height=256;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(128,128,0,128,128,128);
+  grad.addColorStop(0, `rgba(${color},${inner})`);
+  grad.addColorStop(1, `rgba(${color},0)`);
+  g.fillStyle = grad;
+  g.fillRect(0,0,256,256);
+  return new THREE.CanvasTexture(c);
+}
+function makeSparkTexture(){
+  const c = document.createElement('canvas'); c.width=64; c.height=64;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(32,32,0,32,32,32);
+  grad.addColorStop(0,'rgba(255,255,255,1)');
+  grad.addColorStop(0.4,'rgba(255,235,210,0.7)');
+  grad.addColorStop(1,'rgba(255,235,210,0)');
+  g.fillStyle = grad;
+  g.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+
+/* =====================================================================
+   CORE
+===================================================================== */
+const coreRadius = R*0.055;
+const coreMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(coreRadius, 32, 32),
+  new THREE.MeshBasicMaterial({ color:0xff3b1f })
+);
+scene.add(coreMesh);
+
+const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: makeRadialGlow('255,90,40', 0.85), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+}));
+glowSprite.scale.set(R*0.5, R*0.5, 1);
+scene.add(glowSprite);
+
+const glowSpriteOuter = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: makeRadialGlow('255,150,90', 0.35), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+}));
+glowSpriteOuter.scale.set(R*0.95, R*0.95, 1);
+scene.add(glowSpriteOuter);
+
+/* =====================================================================
+   GALAXY GROUP
+===================================================================== */
+const galaxyGroup = new THREE.Group();
+scene.add(galaxyGroup);
+
+function makeDustField(){
+  const count = 4500; 
+  const positions = new Float32Array(count*3);
+  const dustTex = makeDustTexture();
+  for(let i=0;i<count;i++){
+    const radius = R*0.13 + Math.sqrt(Math.random())*R*1.8; 
+    const angle = Math.random()*Math.PI*2;
+    const y = (Math.random()-0.5)*R*0.06;
+    positions[i*3]   = Math.cos(angle)*radius;
+    positions[i*3+1] = y;
+    positions[i*3+2] = Math.sin(angle)*radius;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  const mat = new THREE.PointsMaterial({
+    map:dustTex, color:0xffffff, size: R*0.024, sizeAttenuation:true,
+    transparent:true, alphaTest:0.15, depthWrite:false
+  });
+  return new THREE.Points(geo, mat);
+}
+galaxyGroup.add(makeDustField());
+
+function makeSparkleClusters(){
+  const clusterCount = 50; 
+  const perCluster = 9;
+  const positions = new Float32Array(clusterCount*perCluster*3);
+  let idx = 0;
+  for(let c=0;c<clusterCount;c++){
+    const cx = (Math.random()-0.5)*2*R*1.8; 
+    const cz = (Math.random()-0.5)*2*R*1.8;
+    const cRadius = Math.hypot(cx,cz);
+    if(cRadius > R*1.9 || cRadius < R*0.1) { continue; }
+    const cy = (Math.random()-0.5)*R*0.07;
+    for(let k=0;k<perCluster;k++){
+      positions[idx*3]   = cx + (Math.random()-0.5)*R*0.05;
+      positions[idx*3+1] = cy + (Math.random()-0.5)*R*0.02;
+      positions[idx*3+2] = cz + (Math.random()-0.5)*R*0.05;
+      idx++;
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions.slice(0, idx*3),3));
+  const mat = new THREE.PointsMaterial({
+    map:makeSparkTexture(), color:0xfff2d8, size:R*0.035, sizeAttenuation:true,
+    transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+  });
+  return new THREE.Points(geo, mat);
+}
+galaxyGroup.add(makeSparkleClusters());
+
+/* ---- memory markers ---- */
+const markerSprites = [];
+{
+  const n = memories.length;
+  const goldenAngle = Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<n;i++){
+    const radiusFrac = Math.sqrt((i+0.5)/n);
+    const radius = R*0.2 + radiusFrac*R*1.6; 
+    const angle = i*goldenAngle;
+    const x = Math.cos(angle)*radius;
+    const z = Math.sin(angle)*radius;
+    const y = (Math.random()-0.5)*R*0.035;
+
+    const tex = makeCardTexture(memories[i].icon);
+    const mat = new THREE.SpriteMaterial({ map:tex, transparent:true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(x,y,z);
+    sprite.userData = { order:i+1, data:memories[i] };
+    galaxyGroup.add(sprite);
+    markerSprites.push(sprite);
+  }
+}
+function applyResponsiveMarkerScale(){
+  const baseScale = R*0.10*(isMobile? 1.55 : 1);
+  markerSprites.forEach(s=> s.scale.set(baseScale, baseScale, 1));
+}
+applyResponsiveMarkerScale();
+
+/* =====================================================================
+   AMBIENT ROTATION
+===================================================================== */
+const ROTATION_SPEED = (Math.PI*2)/50000; 
+
+
+/* =====================================================================
+   CAMERA ANIMATION 
+===================================================================== */
+const PHI_MIN = 0.10, PHI_MAX = 1.30;   
+let phi = 1.05; 
+let theta = 0;                           
+let orbitRadius = 0;
+let baseOrbitRadius = 0;
+
+function sphericalPos(radius, phiVal, thetaVal){
+  return new THREE.Vector3(
+    radius*Math.sin(phiVal)*Math.sin(thetaVal),
+    radius*Math.cos(phiVal),
+    radius*Math.sin(phiVal)*Math.cos(thetaVal)
+  );
+}
+
+function recomputeFitDistance(){
+  const vFov = camera.fov*Math.PI/180;
+  const aspect = camera.aspect;
+  const margin = 1.6; 
+  const neededByHeight = R*margin/Math.tan(vFov/2);
+  const neededByWidth  = R*margin/(Math.tan(vFov/2)*aspect);
+  const newBase = Math.max(neededByHeight, neededByWidth, R*1.5);
+  if(!orbitRadius){ orbitRadius = newBase; }
+  else if(baseOrbitRadius){ orbitRadius *= newBase/baseOrbitRadius; }
+  baseOrbitRadius = newBase;
+  orbitRadius = Math.min(Math.max(orbitRadius, baseOrbitRadius*0.6), baseOrbitRadius*2.1);
+}
+resizeRenderer();
+window.addEventListener('resize', ()=>{ resizeRenderer(); applyResponsiveMarkerScale(); });
+
+let mode = 'idle';
+let flightStart = 0;
+const FLIGHT_DURATION = 18000; 
+
+// Kita hanya butuh SATU fungsi kecepatan sekarang, karena kurva akan mengurus sisanya
+function easeInOutCubic(x){ return x<0.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+
+camera.position.copy(new THREE.Vector3(0, coreRadius*0.8, coreRadius*4.0));
+camera.lookAt(0,0,0);
+
+function updateFlight(now){
+  const elapsed = now-flightStart;
+  const p = Math.min(elapsed/FLIGHT_DURATION, 1);
+
+  // KUMPULAN TITIK LINTASAN (WAYPOINTS)
+  // 0. Posisi Start
+  const kf0pos = new THREE.Vector3(0, coreRadius*0.8, coreRadius*4.0);
+  
+  // 1. Zoom Out (Menjauh)
+  const kf1pos = sphericalPos(baseOrbitRadius * 0.7, 1.45, 0);
+  
+  // 2. Zoom In (Mendekat ke planet merah)
+  // Menambahkan sudut theta (0.8) agar kamera agak memutar ke KANAN saat mendekat
+  const kf2pos = sphericalPos(baseOrbitRadius * 0.25, 1.35, 0.8);
+  
+  // 3. Melengkung/Swoosh ke Samping Berlawanan dan Mulai Naik
+  // Menggunakan theta negatif (-0.8) agar kamera memutar berbalik ke KIRI
+  const kf3pos = sphericalPos(baseOrbitRadius * 0.6, 1.20, -0.8);
+  
+  // 4. Posisi Akhir (Orbit di atas galaksi)
+  // Kembali ke theta 0 agar selaras dengan posisi idle[cite: 2]
+  const kf4pos = sphericalPos(baseOrbitRadius * 1.0, 1.05, 0);
+
+  // MEMBUAT JALUR REL MELENGKUNG (SPLINE CURVE)
+  // CatmullRom otomatis menyambungkan ke-5 titik di atas menjadi satu lengkungan yang sangat mulus
+  const curve = new THREE.CatmullRomCurve3([kf0pos, kf1pos, kf2pos, kf3pos, kf4pos]);
+  curve.curveType = 'centripetal'; // Tipe kurva ini mencegah putaran kamera yang terlalu ekstrim
+
+  // Kecepatan meluncur di rel (Lambat di awal -> Kencang saat melengkung -> Ngerem halus di akhir)
+  const t = easeInOutCubic(p);
+
+  // Ambil posisi kamera tepat di titik rel pada waktu 't'
+  const pos = curve.getPoint(t);
+  
+  camera.position.copy(pos);
+  camera.lookAt(0,0,0); // Kamera selalu menatap tajam ke planet merah (0,0,0)[cite: 2]
+
+  if(p>=1){
+    mode = 'orbit';
+    theta = 0;
+    phi = 1.05; // Selaras dengan posisi akhir phi pada kf4pos[cite: 2]
+    orbitRadius = baseOrbitRadius * 1.0; // Selaras dengan jarak akhir pada kf4pos[cite: 2]
+    document.getElementById('hint').classList.add('show');
+  }
+}
+
+function updateOrbit(){
+  const pos = sphericalPos(orbitRadius, phi, theta);
+  camera.position.copy(pos);
+  camera.lookAt(0,0,0);
+}
+
+/* =====================================================================
+   RENDER LOOP
+===================================================================== */
+let lastTime = performance.now();
+function animate(now){
+  const dt = Math.min(now-lastTime, 50); lastTime = now;
+
+  galaxyGroup.rotation.y -= ROTATION_SPEED*dt; 
+
+  if(mode==='flying') updateFlight(now);
+  else if(mode==='orbit') updateOrbit();
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+/* =====================================================================
+   INTERACTION
+===================================================================== */
+let dragging = false, dragMoved = false, lastX=0, lastY=0;
+
+canvas.addEventListener('pointerdown', (e)=>{
+  if(mode!=='orbit') return;
+  dragging = true; dragMoved = false;
+  lastX = e.clientX; lastY = e.clientY;
+  canvas.classList.add('dragging');
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', (e)=>{
+  if(!dragging) return;
+  const dx = e.clientX-lastX;
+  const dy = e.clientY-lastY;
+  if(Math.abs(dx)+Math.abs(dy) > 3) dragMoved = true;
+  theta -= dx*0.0032;
+  phi = Math.min(PHI_MAX, Math.max(PHI_MIN, phi + dy*0.0026));
+  lastX = e.clientX; lastY = e.clientY;
+});
+function endDrag(e){
+  if(!dragging) return;
+  dragging = false;
+  canvas.classList.remove('dragging');
+  if(!dragMoved && mode==='orbit') tryPick(e.clientX, e.clientY);
+}
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', ()=>{ dragging=false; canvas.classList.remove('dragging'); });
+
+canvas.addEventListener('wheel', (e)=>{
+  if(mode!=='orbit') return;
+  e.preventDefault();
+  const factor = Math.exp(e.deltaY*0.0011);
+  orbitRadius = Math.min(Math.max(orbitRadius*factor, baseOrbitRadius*0.55), baseOrbitRadius*2.2);
+}, {passive:false});
+
+let pinchStartDist = null, pinchStartRadius = 0;
+canvas.addEventListener('touchstart', (e)=>{
+  if(e.touches.length===2 && mode==='orbit'){
+    dragging = false;
+    pinchStartDist = Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+    pinchStartRadius = orbitRadius;
+  }
+}, {passive:true});
+canvas.addEventListener('touchmove', (e)=>{
+  if(e.touches.length===2 && pinchStartDist){
+    e.preventDefault();
+    const dist = Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+    const ratio = pinchStartDist/dist;
+    orbitRadius = Math.min(Math.max(pinchStartRadius*ratio, baseOrbitRadius*0.55), baseOrbitRadius*2.2);
+  }
+}, {passive:false});
+canvas.addEventListener('touchend', (e)=>{ if(e.touches.length<2) pinchStartDist = null; }, {passive:true});
+
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+function tryPick(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  pointerNDC.x = ((clientX-rect.left)/rect.width)*2-1;
+  pointerNDC.y = -((clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(pointerNDC, camera);
+  const hits = raycaster.intersectObjects(markerSprites);
+  if(hits.length){
+    const s = hits[0].object;
+    openModal(s.userData.order, s.userData.data);
+  }
+}
+
+/* =====================================================================
+   MODAL
+===================================================================== */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalMedia = document.getElementById('modalMedia');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalOrder = document.getElementById('modalOrder');
+
+function openModal(order, d){
+  modalOrder.textContent = `Kenangan #${order}`;
+  modalTitle.textContent = d.title;
+  modalDesc.textContent = d.desc;
+  modalMedia.innerHTML = d.photo ? `<img src="${d.photo}" alt="${d.title}">` : d.icon;
+  modalOverlay.classList.add('open');
+}
+function closeModal(){ modalOverlay.classList.remove('open'); }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e)=>{ if(e.target===modalOverlay) closeModal(); });
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+/* =====================================================================
+   INTRO / START
+===================================================================== */
+document.getElementById('startBtn').addEventListener('click', (e)=>{
+  e.target.disabled = true;
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('label').classList.add('show');
+  mode = 'flying';
+  flightStart = performance.now();
+});
+</script>
+</body>
+</html>
