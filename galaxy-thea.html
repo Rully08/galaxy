@@ -105,6 +105,7 @@
     font-size:56px; margin-bottom:20px; overflow:hidden;
   }
   #modalMedia img{ width:100%; height:100%; object-fit:cover; display:block; }
+  #modalMedia video{ width:100%; height:100%; object-fit:cover; display:block; }
   #modalTitle{ font-family:'Playfair Display', serif; font-weight:600; font-size:22px; margin:0 0 10px 0; color:var(--text-light); }
   #modalDesc{ font-size:14.5px; line-height:1.75; color:var(--text-dim); margin:0; }
 
@@ -144,54 +145,77 @@
    GALAKSI KENANGAN
 ===================================================================== */
 const memories = [
-  {title:"Awal Kita Kenal",        desc:"Tulis di sini cerita tentang awal kalian saling kenal...", icon:"✨", photo:null},
-  {title:"Chat Pertama",           desc:"Ceritakan momen chat pertama kalian di sini...", icon:"💬", photo:null},
-  {title:"Video Call Pertama",     desc:"Tulis kenangan tentang video call pertama kalian...", icon:"📱", photo:null},
-  {title:"Ketemu Langsung",        desc:"Cerita saat pertama kali bertemu langsung...", icon:"🤝", photo:null},
-  {title:"Kencan Pertama",         desc:"Momen kencan pertama yang tak terlupakan...", icon:"🌙", photo:null},
-  {title:"Jadian",                 desc:"Hari spesial saat kalian resmi jadi sepasang kekasih...", icon:"💌", photo:null},
-  {title:"Jalan Sore Bareng",      desc:"Cerita tentang jalan sore santai berdua...", icon:"🌇", photo:null},
-  {title:"Nonton Bareng",          desc:"Film atau series favorit yang ditonton bersama...", icon:"🎬", photo:null},
-  {title:"Makan Malam Spesial",    desc:"Momen makan malam berdua yang berkesan...", icon:"🍽️", photo:null},
-  {title:"Hujan-hujanan",          desc:"Kenangan lucu atau manis saat hujan bareng...", icon:"🌧️", photo:null},
-  {title:"Momen Konyol",           desc:"Cerita momen paling konyol/lucu berdua...", icon:"😂", photo:null},
-  {title:"Saling Menguatkan",      desc:"Saat kalian saling menguatkan di hari yang berat...", icon:"🫂", photo:null},
-  {title:"Liburan Pertama",        desc:"Cerita liburan pertama kalian bersama...", icon:"🧳", photo:null},
-  {title:"Piknik Kecil",           desc:"Kenangan piknik atau ngopi santai berdua...", icon:"🧺", photo:null},
-  {title:"Masak Bareng",           desc:"Momen masak atau bikin sesuatu bareng...", icon:"🍳", photo:null},
-  {title:"Kejutan Kecil",          desc:"Cerita tentang kejutan manis tak terduga...", icon:"🎁", photo:null},
-  {title:"Bercanda Gurau",         desc:"Momen kita tertawa sampai perut sakit...", icon:"😆", photo:null},
-  {title:"Jalan Malam",            desc:"Keliling kota di malam hari menikmati udara dingin...", icon:"🌃", photo:null},
-  {title:"Cerita Hujan",           desc:"Berteduh sambil ngobrol panjang lebar...", icon:"☔", photo:null},
-  {title:"Playlist Berdua",        desc:"Lagu-lagu yang selalu mengingatkan kita satu sama lain...", icon:"🎶", photo:null},
-  {title:"Ngopi Bareng",           desc:"Cerita di balik segelas kopi kesukaan...", icon:"☕", photo:null},
-  {title:"VC Semalaman",           desc:"Ketiduran saat sedang video call...", icon:"😴", photo:null},
-  {title:"Makan Es Krim",          desc:"Momen manis berbagi es krim favorit...", icon:"🍦", photo:null},
-  {title:"Cerita Horor Bareng",    desc:"Saling takut tapi tetap mau dengerin ceritanya...", icon:"👻", photo:null},
-  {title:"Nonton Konser",          desc:"Menyanyikan lagu favorit bersama penyanyinya...", icon:"🎤", photo:null},
-  {title:"Bikin Kue Bareng",       desc:"Beres-beres dapur setelah berantakan bikin kue...", icon:"🧁", photo:null},
-  {title:"Olahraga Pagi",          desc:"Mencoba gaya hidup sehat berdua...", icon:"🏃", photo:null},
-  {title:"Belanja Bareng",         desc:"Milih-milih barang lucu yang nggak penting...", icon:"🛍️", photo:null},
-  {title:"Momen Canggung",         desc:"Hal memalukan tapi lucu kalau diingat lagi...", icon:"😳", photo:null},
-  {title:"Curhat Malam",           desc:"Saling berbagi keluh kesah hari itu...", icon:"💭", photo:null},
-  {title:"Main Game Bareng",       desc:"Bersaing siapa yang paling jago...", icon:"🎮", photo:null},
-  {title:"Selfie Berdua",          desc:"Foto dengan gaya yang aneh-aneh...", icon:"🤳", photo:null},
-  {title:"Marahan Bentar",         desc:"Momen ngambek lucu yang ujung-ujungnya baikan...", icon:"😤", photo:null},
-  {title:"Maafan Lagi",            desc:"Pelukan hangat setelah perdebatan kecil...", icon:"🤗", photo:null},
-  {title:"Janji Kita",             desc:"Komitmen yang kita buat untuk masa depan...", icon:"🤞", photo:null},
-  {title:"Mimpi Bersama",          desc:"Membicarakan rumah impian dan liburan selanjutnya...", icon:"💭", photo:null},
-  {title:"Masa Depan",             desc:"Melihat hari tua bersamamu...", icon:"👵", photo:null},
-  {title:"Ulang Tahun Thea Lalu",  desc:"Kenangan ulang tahun Thea di tahun sebelumnya...", icon:"🎂", photo:null},
-  {title:"Ketemu Keluarga",        desc:"Momen saat diperkenalkan ke keluarga...", icon:"🏠", photo:null},
-  {title:"Perjalanan Jauh",        desc:"Kenangan perjalanan jauh yang paling berkesan...", icon:"🚗", photo:null},
-  {title:"Melihat Bintang",        desc:"Momen melihat langit malam / bintang berdua...", icon:"🌠", photo:null},
-  {title:"Saat Rindu Terobati",    desc:"Cerita saat akhirnya bisa bertemu setelah lama rindu...", icon:"💗", photo:null},
-  {title:"Foto Favorit Kita",      desc:"Cerita di balik foto favorit kalian berdua...", icon:"📷", photo:null},
-  {title:"Saling Percaya",         desc:"Fondasi kuat dari hubungan kita...", icon:"🤝", photo:null},
-  {title:"Tumbuh Bersama",         desc:"Melihat kita menjadi versi yang lebih baik...", icon:"🌱", photo:null},
-  {title:"Momen Bahagia Ini",      desc:"Sesuatu yang membuat kalian sangat bahagia belakangan ini...", icon:"🌸", photo:null},
-  {title:"Menuju Hari Ini",        desc:"Perjalanan kalian sampai ke hari ulang tahun Thea ini...", icon:"🎉", photo:null},
-  {title:"Galaksi Kita",           desc:"Kumpulan semua kenangan yang membentuk dunia kita...", icon:"🌌", photo:null}
+  {title:"Foto bareng graduation",        desc:"Fotbar kita habis kelulusan kamu cantikk bangettt", icon:"✨", photo:"img/ao636eiuaejee5w05pnf.webp", crop:"bottom"},
+  {title:"Rambut Kepang",           desc:"Pap rambut kepang kamu waktu aku ngepap pake masker wajah ahahhahahaha lcuuu bangettt", icon:"💬", photo:"img/b9z248baeb7f0r4g9mzh.webp",},
+  {title:"Pap PKL",     desc:"Pap kamu kaya mba mba poltekes ahahahhahaha cantik bangettt", icon:"📱", photo:"img/ba5yxaq5vkjn1y1l3mh3.webp"},
+  {title:"Pap berkumiszz",        desc:"Pap random lucuu bangett kesukaan akuu", icon:"🤝", photo:"img/crhtwcb8xulymgntakky.webp"},
+  {title:"Pap before ngantor",         desc:"Pap sebelum kamu ngantor, cantik nan lucu bangettt", icon:"🌙", photo:"img/cvhnggeinfarz5gtob0e.webp"},
+  {title:"Foto kebaya",                 desc:"Foto kamu pakai kebaya pas graduation CANTIKKK BANGETTT GILAKK", icon:"💌", photo:"img/dbzo0lkxvokv3d4unl6a.webp"},
+  {title:"Liburan Pertama",      desc:"Foto bareng kita di pantai wediombo, tapi masih belom siap aowkoawkaowk", icon:"🌇", photo:"img/dustnx9dxc3lbaj95f1s.webp", crop:"bottom"},
+  {title:"Foto Pantai",          desc:"Piknik sekelas duluu kamu lucuu bangett", icon:"🎬", photo:"img/e134lvqpmrfz6jktmnzp.webp"},
+  {title:"Fotoboth Spesial",    desc:"Momen kita foto bareng setelah nonton film horor", icon:"🍽️", photo:"img/Ee5oQIZvDU7a2593BEhRnFoKCfymzqQv7QsjGVEw.webp"},
+  {title:"Pap Random",          desc:"Pap random lucuu pipinyaa minta dicubit loh yaaaa", icon:"🌧️", photo:"img/ek6bgmk8jhkykcjzor9l.webp"},
+  {title:"Pap Dikantor",           desc:"Pap kamuu sela selaa kerjaa", icon:"😂", photo:"img/em5z5nncbcdt5elzayt0.webp", crop:"bottom"},
+  {title:"Liburan Pertama",      desc:"Foto bareng kita di pantai wediombo, sudah agak siap tapi maloe", icon:"🫂", photo:"img/esgt8oppmma1i0mymaj9.webp", crop:"bottom"},
+  {title:"Pap Imoet",        desc:"Pap imoet kamuu yang lucuuu bangettt", icon:"🧳", photo:"img/g0ozbw0forapp8bbxwcu.webp"},
+  {title:"Pap Imoet",           desc:"Pap kamu nyoba baju yang beli di solo", icon:"🧺", photo:"img/gcmodi6arifycy6ibggj.webp"},
+  {title:"Pap Cantik",           desc:"Pap mengobati rasa kangen akuu", icon:"🍳", photo:"img/geifyrmkviifmhgthljy.webp"},
+  {title:"Pap Cantik",          desc:"pap cantik kamu buat aku yang lagii kangenn bangettt", icon:"🎁", photo:"img/gffssze1drdarnrupgvd.webp"},
+  {title:"Foto Bareng di Pantai",         desc:"Foto bareng kita di wediombo belom siap sudah di foto aja jir", icon:"😆", photo:"img/gqcgejihfix049xusmbz.webp", crop:"bottom"},
+  {title:"Graduation",            desc:"Foto bareng kita waktu graduation", icon:"🌃", photo:"img/ha07jrvgb2nmrmzs2ckj.webp", crop:"bottom"},
+  {title:"Pap Imoet",           desc:"Pap random kamu yang imoet bangett astagaaaaaaa lucuuuu", icon:"☔", photo:"img/hcqbfjcreyrys2zt9kr6.webp"},
+  {title:"Dijalan",        desc:"Foto kamu pas habis pulang kerjaa", icon:"🎶", photo:"img/hwhzgryssjcbedrqic9p.webp"},
+  {title:"Pap Cantik",           desc:"Pap cantik kamu waktu aku ngambek temrus kamu kasih foto cantik cantik kamuu ahahhahahaaha", icon:"☕", photo:"img/ibx6vycs0yv2klvo8syd.webp"},
+  {title:"Liburan Pertama",           desc:"Baru aja sampe di pantai wediombo, cafek banget", icon:"😴", photo:"img/IMG_2250.webp"},
+  {title:"Liburan Pertama",          desc:"Baru aja sampe di pantai wediombo, cafek banget", icon:"🍦", photo:"img/IMG_2258.webp"},
+  {title:"Liburan Pertama",    desc:"Baru aja sampe di pantai wediombo, cafek banget", icon:"👻", photo:"img/IMG_2259.webp"},
+  {title:"Momen Senja di Pantai",          desc:"Momen indah waktu kita mau foto foto sunset di wediombo", icon:"🎤", photo:"img/IMG_2270.webp"},
+  {title:"Kamu dan Sunset",       desc:"Foto kamu pas lagi mendakit melihat sunset yang indah", icon:"🧁", photo:"img/IMG_2366.webp"},
+  {title:"Keindahan CiptaanNya",          desc:"Keindahan 2 hal yang menyatu menjadi keajaiban duniakuuuuuu", icon:"🏃", photo:"img/IMG_2454.webp", crop:"bottom"},
+  {title:"Menikmati Sunset",         desc:"Momen indah saat menikmati sunset berdua", icon:"🛍️", photo:"img/IMG_2512.webp", crop:"bottom"},
+  {title:"Menikmati Sunset",         desc:"Momen indah saat menikmati sunset berdua", icon:"😳", photo:"img/IMG_2525.webp", crop:"bottom"},
+  {title:"Kedekatan Berdua",           desc:"Forbar kita sebelum sunset datang yang sangat berarti buat akuu", icon:"💭", photo:"img/IMG_2608.webp"},
+  {title:"Selfie Berdua",       desc:"Forbar kita sebelum sunset datang yang sangat berarti buat akuu", icon:"🎮", photo:"img/IMG_2609.webp"},
+  {title:"Momen Berdua Melihat Sunset",          desc:"Momen indah saat kita melihat sunset berdua di atas tebing", icon:"🤳", photo:"img/IMG_6275.webp", crop:"bottom"},
+  {title:"Momen Berdua Melihat Sunset",         desc:"Momen indah saat kita melihat sunset berdua di atas tebing", icon:"😤", photo:"img/IMG_6276.webp", crop:"bottom"},
+  {title:"Berdua Melihat Sunset di Pantai",            desc:"Momen indah saat aku rangkul kamu terus kamu bersandar di bahuku sambil melihat sunset yang indah WOWW", icon:"🤗", photo:"img/IMG_6279.webp", crop:"bottom"},
+  {title:"Berdua Melihat Sunset di Pantai",             desc:"Momen indah saat aku rangkul kamu sambil melihat sunset yang indah", icon:"🤞", photo:"img/IMG_6282.webp", crop:"bottom"},
+  {title:"Ombak",          desc:"Kedatengan ombak gede pas lagi menikmati sunset, seruuuu bangettt", icon:"💭", photo:"img/IMG_6283.webp", crop:"bottom"},
+  {title:"Rangkulan",             desc:"Momen aku rangkul kamu di atas tebing, bikin aku saltingg OMAGAAAAAAAAAAAAA", icon:"👵", photo:"img/IMG_6343.webp", crop:"bottom"},
+  {title:"Rangkulan",  desc:"Momen pertama kali aku rangkul kamu kaya beginih xixixixiixixi", icon:"🎂", photo:"img/IMG_6347.webp", crop:"bottom"},
+  {title:"Masa Kecil",        desc:"Foto masa kecil kammuu yang lucuu banget menggemaskannnn", icon:"🏠", photo:"img/IMG-20241116-WA0052.webp"},
+  {title:"Biru Laut",        desc:"Foto bareng kita yang go public ituuu AHHAHHAHAHAHHAA", icon:"🚗", photo:"img/jjzrt0dsamknls6dp9wd.webp", crop:"bottom"},
+  {title:"Random",        desc:"Foto random kamu buat wisuda(tapi bukann yang inii yang diwisudaa)", icon:"🌠", photo:"img/k6pwrym0ugehnhq3qhe8.webp"},
+  {title:"Graduation",    desc:"Foto bareng kita di acara wisuda, dengan kecantikan kamu yang sangat cocok dengan baju ituh", icon:"💗", photo:"img/kfxcquxzbqgx0btsyv9h.webp", crop:"bottom"},
+  {title:"Graduation",      desc:"Foto bareng kita di acara wisuda", icon:"📷", photo:"img/kih2uavmcp1lrrqj9kjv.webp", crop:"bottom"},
+  {title:"Pap Random",         desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung muah", icon:"🤝", photo:"img/l7vrnq6t2tfb9yhycgly.webp"},
+  {title:"Tumbuh Bersama",         desc:"Foto kecil kita yang disatuin AHAHHAHAHAHAHA lucuuu bangettt", icon:"🌱", photo:"img/l932bh6kfmdwmnxevy07.webp"},
+  {title:"Pap Random",      desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"🌸", photo:"img/m85cnwerycyd0ocgzfcv.webp"},
+  {title:"Biru Laut",        desc:"Foto bareng kita waktu piknik sekelas yang dilihat orang orang kelas ahahahhahahaha", icon:"🎉", photo:"img/mnjdba215ru9pwsvsdly.webp", crop:"bottom"},
+  {title:"Pap Random",           desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"🌌", photo:"img/mofuprkq4npwwsllte5n.webp"},
+  {title:"Senyum",      desc:"Senyum yang selalu bisa mencairkan suasana hatiku", icon:"😊", photo:"img/mychdlgbeckmbay7bdxo.webp"},
+  {title:"Imut & Lucu",         desc:"Foto kecil kita yang disatuin AHAHHAHAHAHAHA lucuuu bangettt", icon:"🫂", photo:"img/nabof5is2t9gjhelp930.webp"},
+  {title:"Couple",           desc:"Foto kita sebagai pasangan yang bahagia", icon:"😂", photo:"img/njqd8uhicf7l98qdg8gr.webp", crop:"bottom"},
+  {title:"Wediombo",      desc:"Momen foto berdua di tempat yang indah", icon:"🗺️", photo:"img/o1ue32ygrcgaxc7sp9fv.webp", crop:"bottom"},
+  {title:"Pap Random",        desc:"Foto random kamu dengan pipi tembemnyaa ituh minta di cubitttttt", icon:"🌅", photo:"img/onxcvf1tturbn25ff5m9.webp"},
+  {title:"Photoboth",       desc:"Photoboth setelah nonton film yang sangat berkesan", icon:"🌆", photo:"img/opINNdgvvFuy6qHPmAzJCnvmvPXhx6jECSSX3z6u.webp"},
+  {title:"Pap Random",        desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"🌌", photo:"img/p41c4lfyphgseg9nkt9p.webp", crop:"bottom"},
+  {title:"Pap Random",         desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"💫", photo:"img/p73hjcccgybewxialcxi.webp"},
+  {title:"Rangkul Tangan",          desc:"Momen kamu rangkul tanganku waktu fotbar wisuda (salting parah)", icon:"🎀", photo:"img/p9ennzzjhmjfca452yuy.webp", crop:"bottom"},
+  {title:"Go Public",            desc:"Momen Foto bareng kita yang di lihat beberapa temen temen sekelas", icon:"🛋️", photo:"img/pur6epilmesmmw1l4owg.webp", crop:"bottom"},
+  {title:"Pap Random💋",            desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"🚶", photo:"img/qxjdsnv9vc1fusk4wduf.webp"},
+  {title:"Bidadari",             desc:"Kecantikan yang begitu luar biasa", icon:"🍜", photo:"img/qxq0ukbiuho1xlbfwbwp.webp"},
+  {title:"Kita dan Biru Laut",        desc:"Foto kita dengan background biru laut yang indah", icon:"☕", photo:"img/re3hig0nalf1pgyckhyb.webp", crop:"bottom"},
+  {title:"Pap Imuoet",         desc:"Foto kamu yang lucuu dengan pose menggemaskan ituuh awghhhhhhh", icon:"🌙", photo:"img/shs8agzvhtw1zy3vzwon.webp"},
+  {title:"Kenangan Manis",         desc:"Foto kamu yang begitu manis dan membuatku tersenyum", icon:"🍯", photo:"img/swuqxa9ql0tskndh0hcw.webp"},
+  {title:"Pap Random",           desc:"Foto random kamu yang unik dan dengan ciri khasnya mulut mancung MUAH💋", icon:"⭐", photo:"img/tlcfqro3jcnfwxzpzlyr.webp"},
+  {title:"Keindahan",              desc:"1 Keindahan dunia dari banyaknya keindahan yang ada dinunia ini", icon:"🙏", photo:"img/uh6ywwmpzbq7ejf3gfas.webp"},
+  {title:"Momen Dag Dig Dug",           desc:"Pertama kali rangkul bahu kamuuu di photoboth xixixiixixixi", icon:"🎁", photo:"img/uwn0ml9fju4mnrt091et.webp"},
+  {title:"Jajan Mie Ayam",         desc:"Rekaman momen kita jajan mie ayam di warung bu yuni, sampe di videoin bu yuni nya loh yaa AHAHAHHHHA", icon:"🎥", photo:"img/VID-20250919-WA0012.mp4"},
+  {title:"Es Krim",        desc:"Pap keseharian kamu yang habis dibeliin eskrim, aku sukaaaa banget foto kaya beginiiii", icon:"💗", photo:"img/xqybudkayh0bn8lmftpg.webp"},
+  {title:"Berduaan",          desc:"Momen berdua yang membuat hati gembiraaa", icon:"👫", photo:"img/xrlq1r9ayygli8prn2dy.webp"},
+  {title:"Bahagia Bersama",        desc:"Kebahagiaan saat kita sudah dikenal orang orang", icon:"🥰", photo:"img/yeznqv0xqoh6nnch3rnh.webp", crop:"bottom"},
+  {title:"Maloeee",              desc:"Momen maluu karna dilihat banyak orang AHAHAHHHHAHAHAHA", icon:"♾️", photo:"img/zfdbsclxaf20vn2ad4nt.webp", crop:"bottom"}
 ];
 
 /* =====================================================================
@@ -262,18 +286,44 @@ function makeDustTexture(){
   roundRect(g,3,3,26,26,6); g.fill();
   return new THREE.CanvasTexture(c);
 }
-function makeCardTexture(icon){
+function makeCardTexture(icon, photoPath){
   const c = document.createElement('canvas'); c.width=160; c.height=160;
   const g = c.getContext('2d');
   g.fillStyle = 'rgba(255,143,199,0.55)';
   roundRect(g,4,4,152,152,26); g.fill();
-  g.fillStyle = '#fdf9ff';
-  roundRect(g,12,12,136,136,20); g.fill();
-  g.font = '64px sans-serif';
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  g.fillText(icon, 80, 86);
-  return new THREE.CanvasTexture(c);
+  const tex = new THREE.CanvasTexture(c);
+  if(photoPath){
+    const isVideo = photoPath.match(/\.(mp4|webm|ogg|mov)$/i);
+    if(isVideo){
+      g.fillStyle = '#1a1030';
+      roundRect(g,12,12,136,136,20); g.fill();
+      g.fillStyle = '#ff8fc7';
+      g.font = '52px sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText('▶', 80, 86);
+      tex.needsUpdate = true;
+    } else {
+      const img = new Image();
+      img.onload = function(){
+        g.save();
+        roundRect(g,12,12,136,136,20); g.clip();
+        g.drawImage(img, 12, 12, 136, 136);
+        g.restore();
+        tex.needsUpdate = true;
+      };
+      img.src = photoPath;
+    }
+  } else {
+    g.fillStyle = '#fdf9ff';
+    roundRect(g,12,12,136,136,20); g.fill();
+    g.font = '64px sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(icon, 80, 86);
+    tex.needsUpdate = true;
+  }
+  return tex;
 }
 function makeRadialGlow(color, inner){
   const c = document.createElement('canvas'); c.width=256; c.height=256;
@@ -388,7 +438,7 @@ const markerSprites = [];
     const z = Math.sin(angle)*radius;
     const y = (Math.random()-0.5)*R*0.035;
 
-    const tex = makeCardTexture(memories[i].icon);
+    const tex = makeCardTexture(memories[i].icon, memories[i].photo);
     const mat = new THREE.SpriteMaterial({ map:tex, transparent:true });
     const sprite = new THREE.Sprite(mat);
     sprite.position.set(x,y,z);
@@ -608,7 +658,15 @@ function openModal(order, d){
   modalOrder.textContent = `Kenangan #${order}`;
   modalTitle.textContent = d.title;
   modalDesc.textContent = d.desc;
-  modalMedia.innerHTML = d.photo ? `<img src="${d.photo}" alt="${d.title}">` : d.icon;
+  if(d.photo){
+    const isVideo = d.photo.match(/\.(mp4|webm|ogg|mov)$/i);
+    const pos = d.crop === 'bottom' ? 'center bottom' : d.crop === 'top' ? 'center top' : 'center';
+    modalMedia.innerHTML = isVideo
+      ? `<video src="${d.photo}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>`
+      : `<img src="${d.photo}" alt="${d.title}" style="width:100%;height:100%;object-fit:cover;object-position:${pos};">`;
+  } else {
+    modalMedia.innerHTML = d.icon;
+  }
   modalOverlay.classList.add('open');
 }
 function closeModal(){ modalOverlay.classList.remove('open'); }
